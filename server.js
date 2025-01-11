@@ -12,6 +12,10 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+app.get('/', (req, res) => {
+  res.send('API is running');
+});
+
 // Define routes
 app.use('/api/users', userRoutes);
 
