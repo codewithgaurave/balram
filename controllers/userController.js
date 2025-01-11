@@ -2,6 +2,7 @@ const User = require('../models/user');
 const bcrypt = require('bcryptjs');  
 const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
+const Notification = require('../models/notificationModel');
 
 // Register new user
 const registerUser = async (req, res) => {
@@ -122,34 +123,44 @@ const updateUser = async (req, res) => {
 
 // User login
 const loginUser = async (req, res) => {
-    try {
-      const { email, password } = req.body;
-  
-      const user = await User.findOne({ email });
-      if (!user) {
-        return res.status(400).json({ message: 'Invalid credentials' });
-      }
-  
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ message: 'Invalid credentials' });
-      }
-  
-      const token = jwt.sign(
-        { userId: user._id, email: user.email }, 
-        process.env.JWT_SECRET, 
-        { expiresIn: '1h' }
-      );
-  
-      res.status(200).json({
-        message: 'Login successful',
-        token,
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error' });
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid credentials' });
     }
-  };
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    // Fetch user-specific notifications
+    const notifications = await Notification.find({ userId: user._id }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      message: 'Login successful',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+      notifications,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 
   //get all users
   const getAllUsers = async (req, res) => {

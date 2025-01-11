@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 dotenv.config();
 connectDB();
@@ -18,6 +19,7 @@ app.get('/', (req, res) => {
 
 // Define routes
 app.use('/api/users', userRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
