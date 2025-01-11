@@ -151,4 +151,17 @@ const loginUser = async (req, res) => {
     }
   };
 
-module.exports = { registerUser, getUser, deleteUser, updateUser, loginUser };
+  //get all users
+  const getAllUsers = async (req, res) => {
+    try {
+      const users = await User.find({}, { password: 0 }); 
+      res.status(200).json({
+        users,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+    }
+  };
+
+module.exports = { registerUser, getUser, deleteUser, updateUser, loginUser, getAllUsers };
