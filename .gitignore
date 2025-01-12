@@ -18,9 +18,6 @@ uploads/
 node_modules/
 jspm_packages/
 
-# Environment files
-.env
-
 # IDE/Editor directories and files
 .idea/
 .vscode/
