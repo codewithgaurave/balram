@@ -10,7 +10,13 @@ dotenv.config();
 connectDB();
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: ['https://balram-npty.onrender.com/'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  })
+);
+
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
