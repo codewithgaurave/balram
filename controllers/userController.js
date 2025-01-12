@@ -140,6 +140,8 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
+    const notifications = await Notification.find({ userId: user._id }).sort({ createdAt: -1 });
+
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_SECRET,
@@ -154,6 +156,7 @@ const loginUser = async (req, res) => {
         name: user.name,
         email: user.email,
       },
+      notifications,
     });
   } catch (error) {
     console.error('Error during login:', error);
