@@ -126,16 +126,19 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Check if the user exists
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: 'Invalid email or password' });
     }
 
+    // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: 'Invalid email or password' });
     }
 
+    // Generate JWT
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_SECRET,
@@ -156,10 +159,11 @@ const loginUser = async (req, res) => {
       notifications,
     });
   } catch (error) {
-    console.error(error);
+    console.error('Error during login:', error); // Better error logging
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 
   //get all users
