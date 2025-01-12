@@ -126,27 +126,25 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check if the user exists
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Please provide email and password' });
+    }
+
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+      return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Compare passwords
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid email or password' });
+      return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Generate JWT
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
-
-    // Fetch user-specific notifications
-    const notifications = await Notification.find({ userId: user._id }).sort({ createdAt: -1 });
 
     res.status(200).json({
       message: 'Login successful',
@@ -156,15 +154,12 @@ const loginUser = async (req, res) => {
         name: user.name,
         email: user.email,
       },
-      notifications,
     });
   } catch (error) {
-    console.error('Error during login:', error); // Better error logging
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error during login:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
-
-
 
   //get all users
   const getAllUsers = async (req, res) => {
